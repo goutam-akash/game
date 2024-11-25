@@ -1,0 +1,15 @@
+body,html {
+    margin: 0px;
+    position: relative;
+    background-color: #008080;
+}
+canvas {
+    margin: auto;
+}
+form {
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    padding: 10px;
+    border-radius: 5px;
+    color: #fff;
+    z-index: 9999; /* Ensure it appears on top of other elements */
+}
