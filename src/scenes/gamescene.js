@@ -25,7 +25,9 @@ export class MainGameScene extends Phaser.Scene {
     this.load.image("bluehealth", "assets/images/health/blue_meter.png");
     this.load.image("redfill", "assets/images/health/redfill.png");
     this.load.image("bluefill", "assets/images/health/bluefill.png");
-
+    this.load.audio('backgroundMusic', 'assets/sounds/Battlefield(loop).mp3');
+    this.load.audio('fireballAttack', '/assets/sounds/Fireball 3.wav');
+    this.load.image('flameParticle', 'assets/images/firePlayer/particles.png');
     this.load.spritesheet("iceWalkSprite", "assets/images/icePlayer/Walk1.png", {
       frameWidth: 193,
       frameHeight: 300,
@@ -67,11 +69,17 @@ export class MainGameScene extends Phaser.Scene {
     this.blueHealthFill = this.add.image(327, 55, "bluefill").setFlipX(true);
     this.add.image(750, 60, "redhealth");
     this.add.image(350, 60, "bluehealth").setFlipX(true);
+    this.load.audio('fireballAttack', 'game/public/assets/sounds/Fireball 3.wav');
+    
+    // Create background song
+    let backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 0.5 });
+    this.input.once('pointerdown', () => {
+      backgroundMusic.play();
+    });
 
     // Create platforms
     var platforms = this.physics.add.staticGroup();
     platforms.create(500, 650, "road").setOrigin(0.5, 0.5);
-    
 
     // End Game button
     const endGameButton = this.add.text(533, 10, 'End Game', {
@@ -86,13 +94,14 @@ export class MainGameScene extends Phaser.Scene {
       this.scene.start('GameOverScene');
     });
 
-   
+    // Create players
     this.icePlayer = new IcePlayer(this, 167, 100);
     this.firePlayer = new FirePlayer(this, 900, 100).setFlipX(true); // Pass scene context to FirePlayer
     
     this.physics.add.collider(this.firePlayer, platforms);
     this.physics.add.collider(this.icePlayer, platforms); 
-   
+    this.physics.add.collider(this.firePlayer, this.icePlayer);
+
     // Create keyboard input
     this.cursors = this.input.keyboard.createCursorKeys();
     this.aKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -103,9 +112,16 @@ export class MainGameScene extends Phaser.Scene {
   }
 
   update() {
-   
-    
-    this.icePlayer.update(this.aKey, this.dKey, this.wKey,this.ctrlKey);
+    this.icePlayer.update(this.aKey, this.dKey, this.wKey, this.ctrlKey);
     this.firePlayer.update(this.cursors, this.shiftKey);
+
+    // Update IcePlayer health bar
+    this.updateHealthBar();
+  }
+
+  updateHealthBar() {
+    // Calculate the health bar fill based on IcePlayer's health
+    const healthPercent = this.icePlayer.health / 100;
+    this.blueHealthFill.setScale(healthPercent, 1); // Adjust the fill scale based on health
   }
 }
