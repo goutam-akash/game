@@ -31,21 +31,28 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
 
     this.anims.play("icePlayerWalk", true); // Start with the walk animation
     this.health = 100; // Initialize health
+    this.isAttacking = false; // Track whether the player is attacking
+    this.attackCooldown = false; // Prevent spam attacks
+    this.attackArea = null; // Track the attack area
   }
 
   update(aKey, dKey, wKey, ctrlKey) {
     // Ice player movement
     if (aKey.isDown) {
       this.setVelocityX(-160);
-      this.anims.play("icePlayerWalk", true);
+      if (!this.isAttacking) {
+        this.anims.play("icePlayerWalk", true);
+      }
       this.setFlipX(true);
     } else if (dKey.isDown) {
       this.setVelocityX(160);
-      this.anims.play("icePlayerWalk", true);
+      if (!this.isAttacking) {
+        this.anims.play("icePlayerWalk", true);
+      }
       this.setFlipX(false);
     } else {
       this.setVelocityX(0);
-      if (!this.anims.isPlaying || this.anims.currentAnim.key !== "iceAttack") {
+      if (!this.isAttacking) {
         this.anims.stop();
       }
     }
@@ -56,27 +63,71 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
     }
 
     // Handle attack when CTRL is pressed
-    if (ctrlKey.isDown) {
+    if (ctrlKey.isDown && !this.isAttacking) {
       this.attack();
     }
-  }
 
-  jump() {
-    this.setVelocityY(-150);
+    // If the player is attacking, check collision
+    if (this.isAttacking && this.attackArea) {
+      this.scene.physics.world.overlap(
+        this.attackArea,
+        this.scene.firePlayer, // Ensure this is the correct player (FirePlayer)
+        this.handleAttackCollision,
+        null,
+        this
+      );
+    }
   }
 
   attack() {
-    // Ensure that the attack animation only plays if it's not already playing
-    if (!this.anims.isPlaying || this.anims.currentAnim.key !== "iceAttack") {
+    if (!this.isAttacking) {
+      this.isAttacking = true;
+
+      // Play sound and animation
+      this.scene.sound.play("fireballAttack");
       this.anims.play("iceAttack");
-      // After the attack animation completes, switch back to the walk animation
-      this.on('animationcomplete', () => {
-        if (this.anims.currentAnim.key === 'iceAttack') {
-          this.anims.play('icePlayerWalk', true);
-        }
+
+      // Create attack area (hitbox) but don't check for collisions immediately
+      this.attackArea = this.scene.physics.add
+        .image(this.x, this.y, "flameParticle") // Temporary visual for the attack area
+        .setSize(100, 100) // Adjust the size of the attack hitbox
+        .setAlpha(0.5);
+
+      // Disable collision checks during attack animation
+      this.attackArea.setActive(false).setVisible(false);
+
+      // Reset attack state when animation completes
+      this.once("animationcomplete", () => {
+        // Enable attack hitbox and check for collisions only after animation is done
+        this.attackArea.setActive(true).setVisible(true);
+
+        // Check for collisions with FirePlayer here
+        this.scene.physics.world.overlap(
+          this.attackArea,
+          this.scene.firePlayer, // Ensure this is the correct player (FirePlayer)
+          this.handleAttackCollision,
+          null,
+          this
+        );
+
+        // After the attack animation completes, reset the attack state
+        this.isAttacking = false;
+        this.attackArea.destroy();
+        this.attackArea = null;
+        this.anims.play("icePlayerWalk", true); // Resume walking animation
       });
+
+      console.log("Ice attack triggered!");
     }
-    console.log("Ice attack triggered!");
+  }
+
+  handleAttackCollision(attackArea, firePlayer) {
+    if (firePlayer) {
+      firePlayer.takeDamage(20);
+      console.log("FirePlayer hit by Ice Attack!");
+    } else {
+      console.log("Collision detected but no valid firePlayer!");
+    }
   }
 
   takeDamage(amount) {
@@ -88,8 +139,8 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
   }
 
   die() {
-    console.log('IcePlayer has died!');
+    console.log("IcePlayer has died!");
     this.setAlpha(0); // Hide the player when they die
-    this.anims.play('iceDeadSprite');
+    this.anims.play("iceDeadSprite");
   }
 }
