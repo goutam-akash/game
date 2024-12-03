@@ -30,6 +30,7 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
     });
 
     this.anims.play("icePlayerWalk", true); // Start with the walk animation
+    this.health = 100; // Initialize health
   }
 
   update(aKey, dKey, wKey, ctrlKey) {
@@ -56,22 +57,39 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
 
     // Handle attack when CTRL is pressed
     if (ctrlKey.isDown) {
-      this.jump();
       this.attack();
     }
   }
-  jump(){this.setVelocityY(-150);}
+
+  jump() {
+    this.setVelocityY(-150);
+  }
+
   attack() {
     // Ensure that the attack animation only plays if it's not already playing
     if (!this.anims.isPlaying || this.anims.currentAnim.key !== "iceAttack") {
-      this.anims.play("iceAttack"); // Play the ice attack animation
+      this.anims.play("iceAttack");
       // After the attack animation completes, switch back to the walk animation
       this.on('animationcomplete', () => {
         if (this.anims.currentAnim.key === 'iceAttack') {
-          this.anims.play('icePlayerWalk', true); // Return to walk animation
+          this.anims.play('icePlayerWalk', true);
         }
       });
     }
     console.log("Ice attack triggered!");
+  }
+
+  takeDamage(amount) {
+    this.health -= amount;
+    console.log(`IcePlayer health: ${this.health}`);
+    if (this.health <= 0) {
+      this.die();
+    }
+  }
+
+  die() {
+    console.log('IcePlayer has died!');
+    this.setAlpha(0); // Hide the player when they die
+    this.anims.play('iceDeadSprite');
   }
 }
