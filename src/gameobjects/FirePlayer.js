@@ -28,12 +28,29 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
         frameRate: 15,
         repeat: 0, // Attack animation plays only once
       });
+
+      scene.anims.create({
+        key: "fireHurt",
+        frames: scene.anims.generateFrameNumbers("fireHurtSprite", { start: 0, end: 2 }),
+        frameRate: 10,
+        repeat: 0,
+      });
+  
+      scene.anims.create({
+        key: "fireDead",
+        frames: scene.anims.generateFrameNumbers("fireDeadSprite", { start: 0, end: 5 }),
+        frameRate: 10,
+        repeat: 0,
+      });
+  
+      this.isHurt = false; 
   
       // Initialize attack state
       this.isAttacking = false;
     }
   
     update(cursors, shiftKey) {
+        if (this.isHurt) return;
       // Fire player movement (using arrow keys)
       if (cursors.left.isDown) {
         this.setVelocityX(-160);

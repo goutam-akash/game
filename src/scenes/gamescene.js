@@ -8,6 +8,8 @@ export class MainGameScene extends Phaser.Scene {
     this.isIceAttacking = false;
     this.redHealth = 100;
     this.blueHealth = 100;
+    this.blueHealthFill;
+    this.redHealthFill;
     this.icePlayer = null;
     this.firePlayer = null;
     this.cursors = null;
@@ -103,9 +105,24 @@ export class MainGameScene extends Phaser.Scene {
   }
 
   update() {
-   
-    
     this.icePlayer.update(this.aKey, this.dKey, this.wKey,this.ctrlKey);
     this.firePlayer.update(this.cursors, this.shiftKey);
+    this.physics.collide(this.icePlayer, this.firePlayer, this.handleCollision, null, this);
   }
+
+  handleCollision(icePlayer, firePlayer) {
+    var redCropWidth = redHealth * 2.5;
+    var blueCropWidth = blueHealth * 2.5;
+    // You can add logic here to handle the collision, like damaging players or triggering an event
+    console.log('Collision Detected between IcePlayer and FirePlayer');
+    // Example: Reduce health or trigger a visual effect
+    this.redHealth -= 10; // FirePlayer damages IcePlayer (just an example)
+    this.blueHealth -= 10; // IcePlayer damages FirePlayer (just an example)
+    redHealthFill.setCrop(0, 0, Math.max(0, redCropWidth), redHealthFill.height); 
+    blueHealthFill.setCrop(blueHealthFill.width - Math.max(0, blueCropWidth), 0, Math.max(0, blueCropWidth), blueHealthFill.height);
+
+    // Update health bars or other visuals
+    
+}
+
 }

@@ -28,11 +28,26 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       frameRate: 10,
       repeat: 0, // Attack animation plays only once
     });
+    scene.anims.create({
+      key: "iceHurt",
+      frames: scene.anims.generateFrameNumbers("iceHurtSprite", { start: 0, end: 4 }),
+      frameRate: 10,
+      repeat: 0,
+    });
 
+    scene.anims.create({
+      key: "iceDead",
+      frames: scene.anims.generateFrameNumbers("iceDeadSprite", { start: 0, end: 3 }),
+      frameRate: 10,
+      repeat: 0,
+    });
+
+    this.isHurt = false;
     this.anims.play("icePlayerWalk", true); // Start with the walk animation
   }
 
   update(aKey, dKey, wKey, ctrlKey) {
+    if (this.isHurt) return;
     // Ice player movement
     if (aKey.isDown) {
       this.setVelocityX(-160);
