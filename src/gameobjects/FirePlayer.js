@@ -29,16 +29,12 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       repeat: 0,
     });
 
-    this.anims.play("firePlayerWalk", true); // Start with the walk animation
-    this.health = 100; // Initialize health
-    this.isAttacking = false; // Track whether the player is attacking
-    this.attackCooldown = false; // Prevent spam attacks
-    this.attackArea = null; // Track the attack area
 
-    // // Initialize attack state
-    // this.isAttacking = false;
-    // this.attackArea = null;
-    // this.health = 100; // Initialize health
+    // Initialize attack state
+    this.isAttacking = false;
+    this.attackArea = null;
+    this.health = 100;
+    this.isDead = false;
   }
 
   update(cursors, shiftKey) {
@@ -81,64 +77,74 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+
+  jump() {
+    this.setVelocityY(-150);
+  }
+
   attack() {
     if (!this.isAttacking) {
       this.isAttacking = true;
 
       // Play sound and animation
+
+      this.jump();
       this.scene.sound.play("fireballAttack");
       this.anims.play("fireAttack");
 
-      // Create attack area (hitbox) but don't check for collisions immediately
+      // Create an attack area
       this.attackArea = this.scene.physics.add
         .image(this.x, this.y, "flameParticle")
         .setSize(100, 100)
         .setAlpha(0.5);
 
-      // Disable collision checks during attack animation
-      this.attackArea.setActive(false).setVisible(false);
+      // Check for overlap with FirePlayer
+      this.scene.physics.world.overlap(
+        this.attackArea,
+        this.scene.icePlayer,
+        this.handleAttackCollision,
+        null,
+        this
+      );
+      
 
       // Reset attack state when animation completes
       this.once("animationcomplete", () => {
-        // Enable attack hitbox and check for collisions only after animation is done
-        this.attackArea.setActive(true).setVisible(true);
-
-        // Check for collisions with IcePlayer here
-        this.scene.physics.world.overlap(
-          this.attackArea,
-          this.scene.icePlayer,
-          this.handleAttackCollision,
-          null,
-          this
-        );
-
-        // After the attack animation completes, reset the attack state
         this.isAttacking = false;
         this.attackArea.destroy();
         this.attackArea = null;
-        this.anims.play("firePlayerWalk", true); // Resume walking animation
+        this.anims.play("firePlayerWalk", true);
       });
 
       console.log("Fire attack triggered!");
     }
   }
 
-  handleAttackCollision(fireAttack, icePlayer) {
-    icePlayer.takeDamage(20); // FirePlayer damage to IcePlayer
-    console.log("IcePlayer hit by Fire Attack!");
-  }
-
   takeDamage(amount) {
+    if (this.isDead) return; // Prevent further damage after death
     this.health -= amount;
-    console.log(`FirePlayer's health: ${this.health}`);
+    console.log(`IcePlayer health: ${this.health}`);
     if (this.health <= 0) {
       this.die();
     }
   }
+  
 
   die() {
-    console.log("FirePlayer has died!");
-    this.setAlpha(0); // Hide the player when they die
-    this.anims.play("fireDeadSprite");
+    if (!this.isDead) {
+      this.isDead = true;
+      this.scene.sound.play("deadSound");
+      this.scene.time.delayedCall(1000, () => {
+        this.scene.scene.start("GameOverScene", { winner: "Ice Player" });
+      });
+    }
+  }
+
+handleAttackCollision(fireAttack, icePlayer) {
+  if (icePlayer && !icePlayer.isDead) {
+    icePlayer.takeDamage(10);
+    console.log("Ice Player hit by Ice Attack!");
   }
 }
+}
+
