@@ -109,7 +109,7 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       this.isAttacking = true;
 
       // Play sound and animation
-<
+
       this.jump();
       this.scene.sound.play("iceAttack");
       this.anims.play("iceAttack");
