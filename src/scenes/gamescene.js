@@ -28,6 +28,8 @@ export class MainGameScene extends Phaser.Scene {
     this.load.audio('backgroundMusic', 'assets/sounds/Battlefield(loop).mp3');
     this.load.audio('fireballAttack', '/assets/sounds/Fireball 3.wav');
     this.load.image('flameParticle', 'assets/images/firePlayer/particles.png');
+    this.load.audio('iceAttack', 'assets/sounds/Ice Throw 1.wav');
+    this.load.audio('deadSound', 'assets/sounds/dead.mp3');
     this.load.spritesheet("iceWalkSprite", "assets/images/icePlayer/Walk1.png", {
       frameWidth: 193,
       frameHeight: 300,

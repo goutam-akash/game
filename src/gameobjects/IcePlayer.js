@@ -31,6 +31,7 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
 
     this.anims.play("icePlayerWalk", true); // Start with the walk animation
     this.health = 100; // Initialize health
+    this.isDead = false;
   }
 
   update(aKey, dKey, wKey, ctrlKey) {
@@ -68,6 +69,7 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
   attack() {
     // Ensure that the attack animation only plays if it's not already playing
     if (!this.anims.isPlaying || this.anims.currentAnim.key !== "iceAttack") {
+      this.scene.sound.play('iceAttack');
       this.anims.play("iceAttack");
       // After the attack animation completes, switch back to the walk animation
       this.on('animationcomplete', () => {
@@ -88,8 +90,13 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
   }
 
   die() {
-    console.log('IcePlayer has died!');
-    this.setAlpha(0); // Hide the player when they die
-    this.anims.play('iceDeadSprite');
+    if (!this.isDead) {
+      this.isDead = true;
+      this.scene.sound.play('deadSound');
+      this.anims.play('iceDeadSprite');
+      this.scene.time.delayedCall(1000, () => {
+        this.scene.scene.start('GameOverScene', { winner: 'Fire Player' });
+      });
+    }
   }
 }

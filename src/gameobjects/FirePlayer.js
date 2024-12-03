@@ -32,6 +32,8 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
     // Initialize attack state
     this.isAttacking = false;
     this.attackArea = null;
+    this.health = 100;
+    this.isDead = false;
   }
 
   update(cursors, shiftKey) {
@@ -74,6 +76,13 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  takeDamage(amount) {
+    this.health -= amount;
+    if (this.health <= 0) {
+      this.die();
+    }
+  }
+
   attack() {
     if (!this.isAttacking) {
       this.isAttacking = true;
@@ -97,6 +106,17 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       });
 
       console.log("Fire attack triggered!");
+    }
+  }
+
+  die() {
+    if (!this.isDead) {
+      this.isDead = true;
+      this.scene.sound.play('deadSound');
+      this.anims.play('fireDeadSprite');
+      this.scene.time.delayedCall(1000, () => {
+        this.scene.scene.start('GameOverScene', { winner: 'Ice Player' });
+      });
     }
   }
 
