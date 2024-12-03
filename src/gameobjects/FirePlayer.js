@@ -63,7 +63,7 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
     if (shiftKey.isDown && !this.isAttacking) {
       this.attack();
     }
-    
+
     // Check if attack hits IcePlayer
     if (this.isAttacking && this.attackArea) {
       this.scene.physics.world.overlap(
@@ -94,6 +94,17 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
         .image(this.x, this.y, "flameParticle")
         .setSize(100, 100)
         .setAlpha(0.5);
+        
+
+      // Check for overlap with FirePlayer
+      this.scene.physics.world.overlap(
+        this.attackArea,
+        this.scene.icePlayer,
+        this.handleAttackCollision,
+        null,
+        this
+      );
+      
 
       // Reset attack state when animation completes
       this.once("animationcomplete", () => {
@@ -106,28 +117,31 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       console.log("Fire attack triggered!");
     }
   }
-  
+
   takeDamage(amount) {
+    if (this.isDead) return; // Prevent further damage after death
     this.health -= amount;
-    console.log(`FirePlayer health: ${this.health}`);
+    console.log(`IcePlayer health: ${this.health}`);
     if (this.health <= 0) {
       this.die();
     }
   }
+  
 
   die() {
     if (!this.isDead) {
       this.isDead = true;
-      this.scene.sound.play('deadSound');
-      this.anims.play('fireDeadSprite');
+      this.scene.sound.play("deadSound");
       this.scene.time.delayedCall(1000, () => {
-        this.scene.scene.start('GameOverScene', { winner: 'Ice Player' });
+        this.scene.scene.start("GameOverScene", { winner: "Ice Player" });
       });
     }
   }
 
-  handleAttackCollision(fireAttack, icePlayer) {
-    icePlayer.takeDamage(20);
-    console.log("IcePlayer hit by Fire Attack!");
+handleAttackCollision(fireAttack, icePlayer) {
+  if (icePlayer && !icePlayer.isDead) {
+    icePlayer.takeDamage(10);
+    console.log("Ice Player hit by Ice Attack!");
   }
+}
 }

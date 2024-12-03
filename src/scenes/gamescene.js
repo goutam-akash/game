@@ -8,6 +8,8 @@ export class MainGameScene extends Phaser.Scene {
     this.isIceAttacking = false;
     this.redHealth = 100;
     this.blueHealth = 100;
+    this.redHealthFill = null;
+    this.blueHealthFill = null;
     this.icePlayer = null;
     this.firePlayer = null;
     this.cursors = null;
@@ -118,12 +120,19 @@ export class MainGameScene extends Phaser.Scene {
     this.firePlayer.update(this.cursors, this.shiftKey);
 
     // Update IcePlayer health bar
-    this.updateHealthBar();
+    this.updateHealthBarIce();
+    this.updateHealthBarFire();
   }
 
-  updateHealthBar() {
-    // Calculate the health bar fill based on IcePlayer's health
-    const healthPercent = this.icePlayer.health / 100;
-    this.blueHealthFill.setScale(healthPercent, 1); // Adjust the fill scale based on health
+  updateHealthBarIce() {
+    if (!this.icePlayer || !this.blueHealthFill) return;
+    const healthPercent = Math.max(0, Math.min(1, this.icePlayer.health / 100));
+    this.blueHealthFill.setScale(healthPercent, 1);
+  }
+
+  updateHealthBarFire() {
+    if (!this.firePlayer || !this.redHealthFill) return;
+    const healthPercent = Math.max(0, Math.min(1, this.firePlayer.health / 100));
+    this.redHealthFill.setScale(healthPercent, 1);
   }
 }
