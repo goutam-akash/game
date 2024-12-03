@@ -60,6 +60,16 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
     if (ctrlKey.isDown) {
       this.attack();
     }
+        // Check if attack hits FirePlayer
+        if (this.isAttacking && this.attackArea) {
+          this.scene.physics.world.overlap(
+            this.attackArea,
+            this.scene.firePlayer,
+            this.handleAttackCollision,
+            null,
+            this
+          );
+        }
   }
 
   jump() {
@@ -68,12 +78,35 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
 
   attack() {
     // Ensure that the attack animation only plays if it's not already playing
-    if (!this.anims.isPlaying || this.anims.currentAnim.key !== "iceAttack") {
+    if (!this.isAttacking) {
+      this.isAttacking = true;
+
+      // Play sound and animation
+      this.jump();
       this.scene.sound.play('iceAttack');
       this.anims.play("iceAttack");
-      // After the attack animation completes, switch back to the walk animation
+  
+      // Create an attack area
+      this.attackArea = this.scene.physics.add
+        .image(this.x, this.y, "iceParticle")
+        .setSize(100, 100)
+        .setAlpha(0.5)
+        .setPosition(this.flipX ? this.x - 50 : this.x + 50, this.y);
+  
+      // Check for overlap with FirePlayer
+      this.scene.physics.world.overlap(
+        this.attackArea,
+        this.scene.firePlayer,
+        this.handleAttackCollision,
+        null,
+        this
+      );
+  
+      // Reset attack state when animation completes
       this.on('animationcomplete', () => {
         if (this.anims.currentAnim.key === 'iceAttack') {
+          this.attackArea?.destroy();
+          this.attackArea = null;
           this.anims.play('icePlayerWalk', true);
         }
       });
@@ -98,5 +131,10 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
         this.scene.scene.start('GameOverScene', { winner: 'Fire Player' });
       });
     }
+  }
+  
+  handleAttackCollision(attackArea, firePlayer) {
+    firePlayer.takeDamage(20);
+    console.log("FirePlayer hit by Ice Attack!");
   }
 }

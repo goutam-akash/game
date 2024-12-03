@@ -76,11 +76,8 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  takeDamage(amount) {
-    this.health -= amount;
-    if (this.health <= 0) {
-      this.die();
-    }
+  jump() {
+    this.setVelocityY(-150);
   }
 
   attack() {
@@ -88,6 +85,7 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       this.isAttacking = true;
 
       // Play sound and animation
+      this.jump();
       this.scene.sound.play("fireballAttack");
       this.anims.play("fireAttack");
 
@@ -106,6 +104,14 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       });
 
       console.log("Fire attack triggered!");
+    }
+  }
+  
+  takeDamage(amount) {
+    this.health -= amount;
+    console.log(`FirePlayer health: ${this.health}`);
+    if (this.health <= 0) {
+      this.die();
     }
   }
 
