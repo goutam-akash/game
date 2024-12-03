@@ -29,6 +29,7 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       repeat: 0,
     });
 
+
     // Initialize attack state
     this.isAttacking = false;
     this.attackArea = null;
@@ -76,6 +77,7 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+
   jump() {
     this.setVelocityY(-150);
   }
@@ -85,6 +87,7 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       this.isAttacking = true;
 
       // Play sound and animation
+
       this.jump();
       this.scene.sound.play("fireballAttack");
       this.anims.play("fireAttack");
@@ -94,7 +97,6 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
         .image(this.x, this.y, "flameParticle")
         .setSize(100, 100)
         .setAlpha(0.5);
-        
 
       // Check for overlap with FirePlayer
       this.scene.physics.world.overlap(
@@ -145,3 +147,4 @@ handleAttackCollision(fireAttack, icePlayer) {
   }
 }
 }
+

@@ -59,17 +59,21 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityX(-160);
       if (!this.isAttacking) {
         this.anims.play("icePlayerWalk", true);
-        this.setFlipX(true);
       }
+      this.setFlipX(true);
+
     } else if (dKey.isDown) {
       this.setVelocityX(160);
       if (!this.isAttacking) {
         this.anims.play("icePlayerWalk", true);
-        this.setFlipX(false);
       }
+      this.setFlipX(false);
     } else {
       this.setVelocityX(0);
-      if (!this.isAttacking) this.anims.stop();
+      if (!this.isAttacking) {
+        this.anims.stop();
+      }
+
     }
 
     // Ice player jump
@@ -82,16 +86,18 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       this.attack();
     }
 
-    // Check if attack hits FirePlayer
+    // If the player is attacking, check collision
     if (this.isAttacking && this.attackArea) {
       this.scene.physics.world.overlap(
         this.attackArea,
-        this.scene.firePlayer,
+        this.scene.firePlayer, // Ensure this is the correct player (FirePlayer)
+
         this.handleAttackCollision,
         null,
         this
       );
     }
+
   }
 
   jump() {
@@ -103,6 +109,7 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       this.isAttacking = true;
 
       // Play sound and animation
+<
       this.jump();
       this.scene.sound.play("iceAttack");
       this.anims.play("iceAttack");
@@ -150,8 +157,12 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       this.scene.time.delayedCall(1000, () => {
         this.scene.scene.start("GameOverScene", { winner: "Fire Player" });
       });
+
+      console.log("Ice attack triggered!");
     }
   }
+
+
 
   handleAttackCollision(iceAttack, firePlayer) {
     if (firePlayer && !firePlayer.isDead) {
@@ -159,4 +170,5 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       console.log("FirePlayer hit by Ice Attack!");
     }
   }
+
 }
