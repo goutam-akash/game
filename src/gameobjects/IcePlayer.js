@@ -30,14 +30,20 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
     });
     scene.anims.create({
       key: "iceHurt",
-      frames: scene.anims.generateFrameNumbers("iceHurtSprite", { start: 0, end: 4 }),
+      frames: scene.anims.generateFrameNumbers("iceHurtSprite", {
+        start: 0,
+        end: 4,
+      }),
       frameRate: 10,
       repeat: 0,
     });
 
     scene.anims.create({
       key: "iceDead",
-      frames: scene.anims.generateFrameNumbers("iceDeadSprite", { start: 0, end: 3 }),
+      frames: scene.anims.generateFrameNumbers("iceDeadSprite", {
+        start: 0,
+        end: 3,
+      }),
       frameRate: 10,
       repeat: 0,
     });
@@ -61,7 +67,6 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
         this.anims.play("icePlayerWalk", true);
       }
       this.setFlipX(true);
-
     } else if (dKey.isDown) {
       this.setVelocityX(160);
       if (!this.isAttacking) {
@@ -73,7 +78,6 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       if (!this.isAttacking) {
         this.anims.stop();
       }
-
     }
 
     // Ice player jump
@@ -97,7 +101,6 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
         this
       );
     }
-
   }
 
   jump() {
@@ -132,7 +135,7 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
       // Reset attack state when animation completes
       this.once("animationcomplete", () => {
         this.isAttacking = false;
-        if (this.attackArea) this.attackArea.destroy();
+        this.attackArea.destroy();
         this.attackArea = null;
         this.anims.play("icePlayerWalk", true);
       });
@@ -162,13 +165,10 @@ export default class IcePlayer extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-
-
   handleAttackCollision(iceAttack, firePlayer) {
     if (firePlayer && !firePlayer.isDead) {
       firePlayer.takeDamage(10);
       console.log("FirePlayer hit by Ice Attack!");
     }
   }
-
 }

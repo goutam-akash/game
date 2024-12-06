@@ -90,10 +90,14 @@ export class MainGameScene extends Phaser.Scene {
     this.background = this.add
       .tileSprite(0, 0, 3000, 600, "bg")
       .setOrigin(0.5, 0);
-    this.redHealthFill = this.add.image(774, 55, "redfill");
-    this.blueHealthFill = this.add.image(327, 55, "bluefill").setFlipX(true);
-    this.add.image(750, 60, "redhealth");
-    this.add.image(350, 60, "bluehealth").setFlipX(true);
+      this.redHealthFill = this.add.image(774, 55, "redfill").setTint(0xff4d4d); // Tint for a glowing effect
+      this.blueHealthFill = this.add
+        .image(327, 55, "bluefill")
+        .setFlipX(true)
+        .setTint(0x4db8ff); // Tint for cool tones
+  
+      this.add.image(750, 60, "redhealth").setTint(0x990000); // Base health bar color
+      this.add.image(350, 60, "bluehealth").setFlipX(true).setTint(0x0033cc);
 
     this.load.audio('fireballAttack', 'game/public/assets/sounds/Fireball 3.wav');
     
@@ -110,13 +114,23 @@ export class MainGameScene extends Phaser.Scene {
 
     // End Game button
     const endGameButton = this.add
-      .text(533, 10, "End Game", {
-        fontSize: "24px",
-        color: "#ffffff",
-        backgroundColor: "#000",
-        padding: { x: 10, y: 5 },
-      })
-      .setOrigin(0.5);
+    .text(533, 10, "End Game", {
+      fontSize: "28px",
+      color: "#ffffff",
+      fontFamily: "Verdana, Arial, sans-serif",
+      backgroundColor: "#d63333", // Bold red
+      padding: { x: 15, y: 8 },
+      borderRadius: 10,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000',
+        blur: 4,
+        stroke: true,
+        fill: true,
+      },
+    })
+    .setOrigin(0.5);
 
     endGameButton
       .setInteractive({ useHandCursor: true })
