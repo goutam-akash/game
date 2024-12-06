@@ -29,7 +29,6 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       repeat: 0,
     });
 
-
     // Initialize attack state
     this.isAttacking = false;
     this.attackArea = null;
@@ -39,6 +38,8 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
 
   update(cursors, shiftKey) {
     // Fire player movement
+    if (this.isHurt) return;
+
     if (cursors.left.isDown) {
       this.setVelocityX(-160);
       if (!this.isAttacking) {
@@ -53,7 +54,9 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       }
     } else {
       this.setVelocityX(0);
-      if (!this.isAttacking) this.anims.stop();
+      if (!this.isAttacking) {
+        this.anims.stop();
+      }
     }
 
     if (cursors.up.isDown && this.body.touching.down) {
@@ -76,7 +79,6 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       );
     }
   }
-
 
   jump() {
     this.setVelocityY(-150);
@@ -106,7 +108,6 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
         null,
         this
       );
-      
 
       // Reset attack state when animation completes
       this.once("animationcomplete", () => {
@@ -128,7 +129,6 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
       this.die();
     }
   }
-  
 
   die() {
     if (!this.isDead) {
@@ -140,11 +140,10 @@ export default class FirePlayer extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-handleAttackCollision(fireAttack, icePlayer) {
-  if (icePlayer && !icePlayer.isDead) {
-    icePlayer.takeDamage(10);
-    console.log("Ice Player hit by Ice Attack!");
+  handleAttackCollision(fireAttack, icePlayer) {
+    if (icePlayer && !icePlayer.isDead) {
+      icePlayer.takeDamage(10);
+      console.log("Ice Player hit by Ice Attack!");
+    }
   }
 }
-}
-
